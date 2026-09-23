@@ -1,0 +1,72 @@
+﻿@model FilmMVC.Models.Film
+
+@{
+    ViewData["Title"] = "Деталі фільму";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Укажите точную папку внутри wwwroot, где лежат ваши фото (например: /images/ или /posters/)
+    string imageFolder = "~/images/";
+    string defaultPoster = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=700&auto=format&fit=crop&q=80";
+
+    // Если в БД есть имя файла (например, "avatar.jpg"), формируем путь: ~/images/avatar.jpg
+    string posterPath = !string.IsNullOrEmpty(Model.Photo)
+        ? Url.Content($"{imageFolder}{Model.Photo}")
+        : defaultPoster;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="mb-3">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 text-light">
+                &larr; Повернутися до списку
+            </a>
+        </div>
+
+        <div class="card bg-dark text-light border-secondary border-opacity-25 shadow-lg rounded-3 overflow-hidden">
+            <div class="row g-0">
+                <!-- Картинка из локальной папки -->
+                <div class="col-md-5 col-lg-4 bg-black d-flex align-items-center justify-content-center">
+                    <img src="@posterPath"
+                         alt="@Model.FilmName"
+                         class="img-fluid w-100 h-100"
+                         style="object-fit: cover; min-height: 380px;"
+                         asp-append-version="true" />
+                </div>
+
+                <!-- Описание и детали -->
+                <div class="col-md-7 col-lg-8 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <h1 class="h3 fw-bold text-white mb-0">
+                                @Html.DisplayFor(model => model.FilmName)
+                            </h1>
+                            <span class="badge bg-warning text-dark fs-6 fw-bold px-3 py-2 shadow-sm">
+                                ★ @Html.DisplayFor(model => model.Rating) / 10
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="badge bg-secondary bg-opacity-50 text-light border border-secondary border-opacity-25 px-2 py-1">
+                                🎭 @Html.DisplayFor(model => model.Genre)
+                            </span>
+                        </div>
+
+                        <h5 class="text-white-50 fs-6 fw-semibold text-uppercase tracking-wider mt-4 mb-2">Опис</h5>
+                        <p class="text-secondary" style="line-height: 1.7; font-size: 0.95rem;">
+                            @Html.DisplayFor(model => model.Description)
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2 pt-3 mt-4 border-top border-secondary border-opacity-25">
+                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning px-4 fw-semibold">
+                            ✏️ Редагувати
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model?.Id" class="btn btn-outline-danger px-4">
+                            🗑️ Видалити
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

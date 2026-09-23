@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="uk" class="h-100">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – Топ ігор</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="d-flex flex-column h-100 bg-dark text-light">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-black bg-opacity-75 border-bottom border-secondary border-opacity-25 shadow-sm mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-warning d-flex align-items-center gap-2" asp-area="" asp-controller="Films" asp-action="Index">
+                    <span>🎬</span> Топ ігор MVC
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container flex-shrink-0">
+        <main role="main" class="pb-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-black bg-opacity-75 border-top border-secondary border-opacity-25 text-secondary">
+        <div class="container text-center small">
+            &copy; @DateTime.Now.Year – Топ 10 ігор | .NET Core MVC
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
