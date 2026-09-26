@@ -1,46 +1,58 @@
-﻿@* @model StudentsMVC.Models.Student
-
+﻿@model FilmMVC.Models.Film
 @{
-    ViewData["Title"] = "Видалення";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Видалити фільм";
+    
+    string imageFolder = "~/Photos/";
+    string defaultPoster = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=700&auto=format&fit=crop&q=80";
+    
+    string posterPath = !string.IsNullOrEmpty(Model.Photo)
+        ? Url.Content($"{imageFolder}{Model.Photo}")
+        : defaultPoster;
 }
 
-<h1>Видалення</h1>
+<h2 class="text-secondary mb-4">Видалити фільм</h2>
 
-<h3 class="text-danger">Ви впевнені, що хочете видалити цей запис?</h3>
-<div>
-    <h4>Студент</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Surname)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Surname)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Age)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Age)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GPA)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GPA)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete" class="mt-3">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Видалити" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary ms-2">Повернутися до списку</a>
-    </form>
-</div> *@
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="alert alert-warning border-0 mb-4">
+                    <strong>Увага!</strong> Ви впевнені, що хочете видалити цей фільм? Цю дію не можна буде скасувати.
+                </div>
+
+                <dl class="row mb-4">
+                    <dt class="col-sm-4 text-muted">Назва:</dt>
+                    <dd class="col-sm-8 fw-bold">@Model.FilmName</dd>
+
+                    <dt class="col-sm-4 text-muted">Жанр:</dt>
+                    <dd class="col-sm-8">@Model.Genre</dd>
+
+                    <dt class="col-sm-4 text-muted">Опис:</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+
+                    <dt class="col-sm-4 text-muted">Рейтинг:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-warning text-dark">★ @Model.Rating</span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 text-muted">Фото:</dt>
+                    <dd class="col-sm-8">
+                        <img src="@posterPath" 
+                             alt="@Model.FilmName" 
+                             class="img-thumbnail" 
+                             style="max-height: 200px; width: auto; object-fit: cover;" />
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-light border">Скасувати</a>
+                        <input type="submit" value="Видалити" class="btn btn-danger px-4" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

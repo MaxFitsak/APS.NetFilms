@@ -26,12 +26,10 @@
                         #@rank
                     </span>
                     @{
-                        // Проверяем, есть ли имя файла в БД, и добавляем путь к папке
                         string itemPoster = !string.IsNullOrEmpty(item.Photo)
                             ? Url.Content($"~/Photos/{item.Photo}")
                             : "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=60";
                     }
-                    <!-- Если в FilmMVC.Models.Film появится свойство ImageUrl, замените src на item.ImageUrl !--> 
                     <img src="@itemPoster"
                               alt="@item.FilmName"
                               class="img-fluid w-100 h-100"

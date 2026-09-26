@@ -3,12 +3,10 @@
 @{
     ViewData["Title"] = "Деталі фільму";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    // Укажите точную папку внутри wwwroot, где лежат ваши фото (например: /images/ или /posters/)
+    
     string imageFolder = "~/Photos/";
     string defaultPoster = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=700&auto=format&fit=crop&q=80";
-
-    // Если в БД есть имя файла (например, "avatar.jpg"), формируем путь: ~/images/avatar.jpg
+    
     string posterPath = !string.IsNullOrEmpty(Model.Photo)
         ? Url.Content($"{imageFolder}{Model.Photo}")
         : defaultPoster;
@@ -24,7 +22,6 @@
 
         <div class="card bg-dark text-light border-secondary border-opacity-25 shadow-lg rounded-3 overflow-hidden">
             <div class="row g-0">
-                <!-- Картинка из локальной папки -->
                 <div class="col-md-5 col-lg-4 bg-black d-flex align-items-center justify-content-center">
                     <img src="@posterPath"
                          alt="@Model.FilmName"

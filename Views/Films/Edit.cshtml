@@ -1,49 +1,80 @@
-﻿@* @model StudentsMVC.Models.Student
-
+﻿@model FilmMVC.Models.Film
 @{
-    ViewData["Title"] = "Редагування";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Редагувати фільм";
+    
+    string imageFolder = "~/Photos/";
+    string defaultPoster = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=700&auto=format&fit=crop&q=80";
+    
+    string posterPath = !string.IsNullOrEmpty(Model.Photo)
+        ? Url.Content($"{imageFolder}{Model.Photo}")
+        : defaultPoster;
 }
 
-<h1>Редагування</h1>
+<h2 class="text-secondary mb-4">Редагувати фільм</h2>
 
-<h4>Студент</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            
-            <div class="mb-3">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <dt class="col-sm-4 text-muted">Фото:</dt>
+                    <dd class="col-sm-8">
+                        <img src="@posterPath" 
+                             alt="@Model.FilmName" 
+                             class="img-thumbnail" 
+                             style="max-height: 200px; width: auto; object-fit: cover;" />
+                    </dd>
+                    
+                    <div class="mb-3">
+                        <label asp-for="FilmName" class="form-label fw-bold">Назва фільму</label>
+                        <input asp-for="FilmName" class="form-control" placeholder="Введіть назву фільму" />
+                        <span asp-validation-for="FilmName" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Genre" class="form-label fw-bold">Жанр</label>
+                        <input asp-for="Genre" class="form-control" placeholder="Введіть жанр (наприклад, Драма, Комедія)" />
+                        <span asp-validation-for="Genre" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-bold">Опис</label>
+                        <input asp-for="Description" class="form-control" placeholder="Введіть опис фільму" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="Rating" class="form-label fw-bold">Рейтинг</label>
+                        <input asp-for="Rating" class="form-control" type="number" step="0.1" min="0" max="10" placeholder="Введіть рейтинг (0.0 - 10.0)" />
+                        <span asp-validation-for="Rating" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="posterFile" class="form-label fw-bold">Постер фільму</label>
+                        <input type="file" 
+                               name="photoFile" 
+                               id="posterFile" 
+                               class="form-control" 
+                               accept="image/*"/>
+                        <div class="form-text text-muted">Оберіть фото постера (.jpg, .png, .webp)</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-light border">Повернутися</a>
+                        <input type="submit" value="Зберегти зміни" class="btn btn-primary px-4" />
+                    </div>
+                </form>
             </div>
-            <div class="mb-3">
-                <label asp-for="Surname" class="control-label"></label>
-                <input asp-for="Surname" class="form-control" />
-                <span asp-validation-for="Surname" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Age" class="control-label"></label>
-                <input asp-for="Age" class="form-control" />
-                <span asp-validation-for="Age" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="GPA" class="control-label"></label>
-                <input asp-for="GPA" class="form-control" />
-                <span asp-validation-for="GPA" class="text-danger"></span>
-            </div>
-            
-            <div class="mb-3">
-                <input type="submit" value="Зберегти" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary ms-2">Повернутися до списку</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-} *@
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

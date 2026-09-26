@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Films.Controllers
-{
+{   
     // Використання Primary Constructor (C# 12)
-    public class FilmsController(FilmContext context) : Controller
+    public class FilmsController(FilmContext context, IWebHostEnvironment webHostEnvironment) : Controller
     {
         private readonly FilmContext _context = context;
+        private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
         // GET: Students
         // AsNoTracking() використовується для оптимізації читання (Read-Only)
@@ -28,88 +29,117 @@ namespace Films.Controllers
         }
 
         //// GET: Students/Create
-        //public IActionResult Create() => View();
+        public IActionResult Create() => View();
 
         //// POST: Students/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,Name,Surname,Age,GPA")] Film film)
-        //{
-        //    if (!ModelState.IsValid) return View(film);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,FilmName,Description,Genre,Rating")] Film film, IFormFile? photoFile)
+        {
+            ModelState.Remove("Photo");
+            
+           if (!ModelState.IsValid) return View(film);
+            
+           if (photoFile != null && photoFile.Length > 0)
+           {
+               string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Photos");
+               Directory.CreateDirectory(uploadsFolder);
+               
+               string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(photoFile.FileName);
+               string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-        //    _context.Add(film);
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
+               using (var fileStream = new FileStream(filePath, FileMode.Create))
+               {
+                   await photoFile.CopyToAsync(fileStream);
+               }
+               
+               film.Photo = uniqueFileName;
+           }
+           
+            _context.Add(film);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
         //// GET: Students/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id is null) return NotFound();
-
-        //    var student = await _context.Films.FindAsync(id);
-        //    return student is null ? NotFound() : View(student);
-        //}
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id is null) return NotFound();
+            // AsNoTracking() значно зменшує навантаження на пам'ять,
+            // оскільки EF Core не відстежує сутності
+            var film = await _context.Films
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+            
+            return film is null ? NotFound() : View(film);
+        }
 
         // POST: Students/Edit/5
-        //    [HttpPost]
-        //    [ValidateAntiForgeryToken]
-        //    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Age,GPA")] Film film)
-        //    {
-        //        if (id != student.Id) return NotFound();
-        //        if (!ModelState.IsValid) return View(student);
+        [HttpPost]
+           [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FilmName,Description,Genre,Rating,Photo")] Film film, IFormFile? photoFile)
+            {
+                if (id != film.Id) return NotFound();
+                ModelState.Remove("Photo");
+                if (!ModelState.IsValid) return View(film);
 
-        //        try
-        //        {
-        //            _context.Update(student);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            /*
-        //             * DbUpdateConcurrencyException — це механізм Entity Framework Core для відстеження 
-        //             * та обробки проблем паралелізму. Він викидається під час виклику SaveChanges(), 
-        //             * коли фреймворк виявляє, що запис у базі даних, який  треба оновити або видалити, 
-        //             * змінився іншим процесом з моменту його первинного завантаження.
-        //             * При розробці багатопотокових додатків або серверних архітектур із великою кількістю 
-        //             * одночасних запитів цей виняток є основою оптимістичного паралелізму (Optimistic Concurrency). 
-        //             * Замість жорсткого блокування таблиць під час читання, система дозволяє кільком потокам 
-        //             * або користувачам читати дані одночасно, але запобігає випадковому перезапису, 
-        //             * якщо початковий стан уже неактуальний.
-        //             */
-        //            if (!StudentExists(student.Id)) return NotFound();
-        //            throw;
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
+                try
+                {
+                    if (photoFile != null && photoFile.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Photos");
+                        Directory.CreateDirectory(uploadsFolder);
+
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(photoFile.FileName);
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await photoFile.CopyToAsync(fileStream);
+                        }
+                        
+                        film.Photo = uniqueFileName;
+                    }
+
+                    _context.Update(film);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _context.Films.AnyAsync(e => e.Id == film.Id))
+                    {
+                        return NotFound();
+                    }
+                    throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
 
         //    // GET: Students/Delete/5
-        //    public async Task<IActionResult> Delete(int? id)
-        //    {
-        //        if (id is null) return NotFound();
+        public async Task<IActionResult> Delete(int? id)
+            {
+                if (id is null) return NotFound();
 
-        //        var student = await _context.Students
-        //            .AsNoTracking()
-        //            .FirstOrDefaultAsync(m => m.Id == id);
+                var film = await _context.Films
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.Id == id);
 
-        //        return student is null ? NotFound() : View(student);
-        //    }
+                return film is null ? NotFound() : View(film);
+            }
 
-        //    // POST: Students/Delete/5
-        //    [HttpPost, ActionName("Delete")]
-        //    [ValidateAntiForgeryToken]
-        //    public async Task<IActionResult> DeleteConfirmed(int id)
-        //    {
-        //        var student = await _context.Students.FindAsync(id);
-        //        if (student is not null)
-        //        {
-        //            _context.Students.Remove(student);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-
-        //    private bool StudentExists(int id) => _context.Students.Any(e => e.Id == id);
-        //}
+            // POST: Students/Delete/5
+            [HttpPost, ActionName("Delete")]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> DeleteConfirmed(int id)
+            {
+                var film = await _context.Films.FindAsync(id);
+                if (film is not null)
+                {
+                    _context.Films.Remove(film);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            
+        }
     }
-}
