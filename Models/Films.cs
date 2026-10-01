@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FilmMVC.Attributes;
 
 namespace FilmMVC.Models
 {
@@ -10,6 +11,7 @@ namespace FilmMVC.Models
         [Required(ErrorMessage = "Поле є обов'язковим для заповнення.")]
         [StringLength(500, MinimumLength = 3, ErrorMessage = "Від 3 до 50 символів")]
         [Display(Name = "Фільм")]
+        [UniqueFilmTitle(ErrorMessage = "Фільм з такою назвою вже існує")]
         public required string FilmName { get; set; }
 
         [Required(ErrorMessage = "Поле є обов'язковим для заповнення.")]
